@@ -8,8 +8,13 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 60 # 로컬 테스트를 위해 늘려줌, 원래3
     Tracing: Active
+  Api:
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
 
 Resources:
   HelloWorldFunction:
@@ -51,6 +56,24 @@ Resources:
           Properties:
             Path: /write
             Method: post
+      Policies:
+        - Statement:
+            - Sid: AWSSecretsManagerGetSecretValuePolicy
+              Effect: Allow
+              Action: secretsmanager:GetSecretValue
+              Resource: arn:aws:secretsmanager:ap-northeast-2:343245313721:secret:rds-secret-01-qLiILJ
+  BbsListFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: bbs_list/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Events:
+        BbsList:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /list
+            Method: get
       Policies:
         - Statement:
             - Sid: AWSSecretsManagerGetSecretValuePolicy
